@@ -1,0 +1,26 @@
+{
+  "name": "openmusic-backend-dicoding",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "supervisor ./src/server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "eslint": "^7.32.0 || ^8.2.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.25.2",
+    "supervisor": "^0.12.0"
+  },
+  "dependencies": {
+    "@hapi/hapi": "^21.2.1",
+    "dotenv": "^16.0.3",
+    "joi": "^17.7.0",
+    "nanoid": "^4.0.0",
+    "node-pg-migrate": "^6.2.2",
+    "pg": "^8.9.0"
+  }
+}
