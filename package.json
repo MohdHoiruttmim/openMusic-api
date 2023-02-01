@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "supervisor ./src/server.js"
+    "dev": "supervisor ./src/server.js",
+    "migrate": "node-pg-migrate",
+    "lint": "eslint --ext .js ."
   },
   "keywords": [],
   "author": "",
