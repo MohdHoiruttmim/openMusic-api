@@ -40,7 +40,34 @@ class AlbumsService {
       throw new NotFoundError('Album tidak ditemukan');
     }
 
+    // kurang detail lagu yang dimiliki album
+
     return result.rows[0];
+  }
+
+  async putAlbumById(id, { name, year }) {
+    const query = {
+      text: 'UPDATE albums SET name = $1, year = $2 WHERE id = $3 RETURNING id',
+      values: [name, year, id],
+    };
+
+    const result = await this._pool.query(query);
+    if (!result.rows.length) {
+      throw new NotFoundError('Gagal memperbarui album. Id tidak ditemukan');
+    }
+  }
+
+  async deleteAlbumById(id) {
+    const query = {
+      text: 'DELETE FROM albums WHERE id = $1 RETURNING id',
+      values: [id],
+    };
+
+    const result = await this._pool.query(query);
+
+    if (!result.rows.length) {
+      throw new NotFoundError('Album gagal dihapus. Id tidak ditemukan');
+    }
   }
 }
 
