@@ -64,6 +64,49 @@ class SongsHandler {
     response.code(200);
     return response;
   }
+
+  async putSongByIdHandler(request, h) {
+    this._validator.validateSongPayload(request.payload);
+    const { songId } = request.params;
+    const {
+      title,
+      year,
+      genre,
+      performer,
+      duration,
+      albumId,
+    } = request.payload;
+
+    await this._service.putSongByid(songId, {
+      title,
+      year,
+      genre,
+      performer,
+      duration,
+      albumId,
+    });
+
+    const response = h.response({
+      status: 'success',
+      message: 'Lagu berhasil diperbarui.',
+    });
+
+    response.code(200);
+    return response;
+  }
+
+  async deleteSongByIdHandler(request, h) {
+    const { songId } = request.params;
+
+    await this._service.deleteSongById(songId);
+    const response = h.response({
+      status: 'success',
+      message: 'Lagu berhasil dihapus.',
+    });
+
+    response.code(200);
+    return response;
+  }
 }
 
 module.exports = SongsHandler;

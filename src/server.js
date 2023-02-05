@@ -23,6 +23,7 @@ const init = async () => {
     },
   });
 
+  // hapi plugin register
   await server.register([
     {
       plugin: albums,
@@ -40,6 +41,7 @@ const init = async () => {
     },
   ]);
 
+  // intercept error exception from response
   await server.ext('onPreResponse', (request, h) => {
     const { response } = request;
     if (response instanceof ClientError) {
