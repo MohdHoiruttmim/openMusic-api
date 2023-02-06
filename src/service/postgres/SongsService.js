@@ -2,6 +2,7 @@ const { nanoid } = require('nanoid');
 const { Pool } = require('pg');
 const InvariantError = require('../../exceptions/InvariantError');
 const NotFoundError = require('../../exceptions/NotFoundError');
+const { mapSongDBToModel } = require('../../utils');
 
 class SongsService {
   constructor() {
@@ -29,7 +30,20 @@ class SongsService {
     return songId;
   }
 
-  async getSongs() {
+  async getSongs(title, performer) {
+    if (title && performer) {
+      const result = await this._pool.query(`SELECT id, title, performer FROM songs WHERE LOWER(title) LIKE '%${title.toLowerCase()}%' AND LOWER(performer) LIKE '%${performer.toLowerCase()}%'`);
+      return result.rows;
+    }
+    if (title) {
+      const result = await this._pool.query(`SELECT id, title, performer FROM songs WHERE LOWER(title) LIKE '%${title.toLowerCase()}%'`);
+      return result.rows;
+    }
+    if (performer) {
+      const result = await this._pool.query(`SELECT id, title, performer FROM songs WHERE LOWER(performer) LIKE '%${performer.toLowerCase()}%'`);
+      return result.rows;
+    }
+
     const result = await this._pool.query('SELECT songs.id, songs.title, songs.performer FROM songs');
     return result.rows;
   }
@@ -44,7 +58,8 @@ class SongsService {
     if (!result.rows.length) {
       throw new NotFoundError('Lagu tidak ditemukan');
     }
-    return result.rows[0];
+    const mappedResult = result.rows.map(mapSongDBToModel);
+    return mappedResult[0];
   }
 
   async putSongByid(id, {
