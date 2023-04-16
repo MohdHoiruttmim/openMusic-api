@@ -9,7 +9,7 @@ class SongsService {
     this._pool = new Pool();
   }
 
-  async postSong({
+  async addSong({
     title,
     year,
     genre,
@@ -17,7 +17,7 @@ class SongsService {
     duration,
     albumId,
   }) {
-    const songId = 'song-'.concat(nanoid(16));
+    const songId = `song-${nanoid(16)}`;
     const query = {
       text: 'INSERT INTO songs VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id',
       values: [songId, title, year, performer, genre, duration, albumId],
@@ -62,7 +62,7 @@ class SongsService {
     return mappedResult[0];
   }
 
-  async putSongByid(id, {
+  async editSongByid(id, {
     title,
     year,
     performer,

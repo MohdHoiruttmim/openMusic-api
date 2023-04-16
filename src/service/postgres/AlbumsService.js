@@ -13,7 +13,7 @@ class AlbumsService {
     return result.rows;
   }
 
-  async postAlbum({ name, year }) {
+  async addAlbum({ name, year }) {
     const albumId = 'album-'.concat(nanoid(16));
 
     const query = {
@@ -51,7 +51,7 @@ class AlbumsService {
     return albumResult.rows[0];
   }
 
-  async putAlbumById(id, { name, year }) {
+  async editAlbumById(id, { name, year }) {
     const query = {
       text: 'UPDATE albums SET name = $1, year = $2 WHERE id = $3 RETURNING id',
       values: [name, year, id],

@@ -1,3 +1,5 @@
 /node_modules
+.notes
 .env
 sandbox.js
+OpenMusic-API-V1-Test.zip
