@@ -3,10 +3,10 @@ const InvariantError = require('../exceptions/InvariantError');
 
 const TokenManager = {
   generateAccessToken: (payload) => Jwt.token.generate(payload, process.env.ACCESS_TOKEN_KEY),
-  generateRefrehToken: (payload) => Jwt.token.generate(payload, process.env.REFRESH_TOKEN_KEY),
-  verifyRefreshToken: (refrehToken) => {
+  generateRefreshToken: (payload) => Jwt.token.generate(payload, process.env.REFRESH_TOKEN_KEY),
+  verifyRefreshToken: (refreshToken) => {
     try {
-      const artifact = Jwt.token.decode(refrehToken);
+      const artifact = Jwt.token.decode(refreshToken);
       Jwt.token.verifySignature(artifact, process.env.REFRESH_TOKEN_KEY);
       const { payload } = artifact.decoded;
       return payload;
