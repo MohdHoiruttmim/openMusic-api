@@ -1,7 +1,8 @@
 /node_modules
-.notes
 .env
+.notes
 sandbox.js
 OpenMusic-API-V1-Test.zip
 OpenMusic-API-V2-Test.zip
 Like-clause-postgres-node-js.png
+playlist-query.png

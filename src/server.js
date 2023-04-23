@@ -3,6 +3,7 @@
 require('dotenv').config();
 
 const Hapi = require('@hapi/hapi');
+const Jwt = require('@hapi/jwt');
 const ClientError = require('./exceptions/ClientError');
 
 // albums service
@@ -26,11 +27,17 @@ const AuthenticationsService = require('./service/postgres/AuthenticationsServic
 const AuthenticationsValidator = require('./validator/authentication/index');
 const TokenManager = require('./tokenize/TokenManager');
 
+// playlist service
+const playlist = require('./api/playlist');
+const PlaylistService = require('./service/postgres/PlaylistService');
+const PlaylistValidator = require('./validator/playlist');
+
 const init = async () => {
   const albumsService = new AlbumsService();
   const songsService = new SongsService();
   const usersService = new UsersService();
   const authenticationsService = new AuthenticationsService();
+  const playlistService = new PlaylistService();
 
   const server = Hapi.server({
     port: process.env.PORT,
@@ -40,6 +47,30 @@ const init = async () => {
         origin: ['*'],
       },
     },
+  });
+
+  // register third party plugin
+  await server.register([
+    {
+      plugin: Jwt,
+    },
+  ]);
+
+  // defined auhtentication strategy
+  server.auth.strategy('openmusic_jwt', 'jwt', {
+    keys: process.env.ACCESS_TOKEN_KEY,
+    verify: {
+      aud: false,
+      iss: false,
+      sub: false,
+      maxAgeSec: process.env.ACCESS_TOKEN_AGE,
+    },
+    validate: (artifacts) => ({
+      isValid: true,
+      credentials: {
+        id: artifacts.decoded.payload.id,
+      },
+    }),
   });
 
   // hapi plugin register
@@ -72,6 +103,14 @@ const init = async () => {
         usersService,
         tokenManager: TokenManager,
         validator: AuthenticationsValidator,
+      },
+    },
+    {
+      plugin: playlist,
+      options: {
+        playlistService,
+        songsService,
+        validator: PlaylistValidator,
       },
     },
   ]);
