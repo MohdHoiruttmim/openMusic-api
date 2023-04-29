@@ -10,6 +10,28 @@ class PlaylistService {
     this._collaborationsService = collaborationsService;
   }
 
+  async addPlaylistSongActivities(playlistId, songId, userId, action) {
+    const id = `act-${nanoid(16)}`;
+    const time = new Date();
+
+    const query = {
+      text: 'INSERT INTO playlist_song_activities VALUES($1, $2, $3, $4, $5, $6)',
+      values: [id, playlistId, songId, userId, action, time]
+    }
+
+    await this._pool.query(query);
+  }
+
+  async getPlaylistSongACtivities(playlistId) {
+    const query = {
+      text: 'SELECT users.username, songs.title, action, time FROM playlist_song_activities INNER JOIN songs ON playlist_song_activities.song_id = songs.id INNER JOIN users ON playlist_song_activities.user_id = users.id WHERE playlist_id = $1',
+      values: [playlistId],
+    }
+
+    const { rows } = await this._pool.query(query);
+    return rows;
+  }
+
   async addPlaylist(name, owner) {
     const id = `playlist-${nanoid(16)}`;
     const query = {
@@ -27,7 +49,7 @@ class PlaylistService {
 
   async getPlaylist(owner) {
     const query = {
-      text: 'SELECT playlist.id, playlist.name, users.username FROM playlist INNER JOIN users ON playlist.owner = users.id INNER JOIN collaborations ON collaborations.playlist_id = playlist.id WHERE users.id = $1 or collaborations.user_id = $1',
+      text: 'SELECT playlist.id, playlist.name, users.username FROM playlist INNER JOIN users ON playlist.owner = users.id LEFT JOIN collaborations ON playlist.id = collaborations.playlist_id WHERE users.id = $1 OR collaborations.user_id = $1',
       values: [owner],
     };
 
@@ -68,12 +90,12 @@ class PlaylistService {
   }
 
   async verifyPlaylistAccess(id, user) {
-    try{
+    try {
       await this._collaborationsService.verifyCollaborator(id, user);
-    } catch(error) {
+    } catch {
       try {
         await this.verifyPlaylistOwner(id, user);
-      } catch(error) {
+      } catch (error) {
         throw error;
       }
     }

@@ -34,9 +34,9 @@ class UsersHandler {
       status: 'success',
       data: {
         user,
-      }
+      },
     });
-    
+
     response.code(200);
     return response;
   }
