@@ -11,7 +11,7 @@ class AlbumsHandler {
     this._validator.validateAlbumPayload(request.payload);
     const { name, year } = request.payload;
 
-    const albumId = await this._service.postAlbum({ name, year });
+    const albumId = await this._service.addAlbum({ name, year });
     const response = h.response({
       status: 'success',
       data: {
@@ -54,7 +54,7 @@ class AlbumsHandler {
     this._validator.validateAlbumPayload(request.payload);
     const { albumId } = request.params;
 
-    await this._service.putAlbumById(albumId, request.payload);
+    await this._service.editAlbumById(albumId, request.payload);
     const response = h.response({
       status: 'success',
       message: 'Album berhasil diperbarui',
