@@ -16,13 +16,13 @@ class ExportsHandler {
 
     this._validator.validateExportPayload(request.payload);
     await this._playlistService.verifyPlaylistAccess(playlistId, userId);
-    
+
     const message = {
       playlistId,
-      targetEmail
-    }
+      targetEmail,
+    };
 
-    await this._exportService.sendMessage('export:playlist',JSON.stringify(message));
+    await this._exportService.sendMessage('export:playlist', JSON.stringify(message));
 
     const response = h.response({
       status: 'success',

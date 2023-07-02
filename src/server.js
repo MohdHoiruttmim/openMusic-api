@@ -4,7 +4,9 @@ require('dotenv').config();
 
 const Hapi = require('@hapi/hapi');
 const Jwt = require('@hapi/jwt');
+const Inert = require('@hapi/inert');
 const ClientError = require('./exceptions/ClientError');
+const path = require('path');
 
 // albums service
 const albums = require('./api/albums');
@@ -39,9 +41,13 @@ const CollaborationsValidator = require('./validator/collaboration');
 
 // exports playlists
 const _exports = require('./api/exports');
-
 const ExportsService = require('./service/rabbitmq/ProducerService');
 const ExportsValidator = require('./validator/export');
+
+// upload images
+const uploads = require('./api/uploads');
+const StorageService = require('./service/storage/StorageService');
+const UploadsValidator = require('./validator/upload');
 
 const init = async () => {
   const albumsService = new AlbumsService();
@@ -50,6 +56,7 @@ const init = async () => {
   const authenticationsService = new AuthenticationsService();
   const collaborationsService = new CollaborationsService();
   const playlistService = new PlaylistService(collaborationsService);
+  const uploadService = new StorageService(path.resolve(__dirname, 'api/uploads/file/images'));
 
   const server = Hapi.server({
     port: process.env.PORT,
@@ -66,6 +73,9 @@ const init = async () => {
     {
       plugin: Jwt,
     },
+    {
+      plugin: Inert,
+    }
   ]);
 
   // defined auhtentication strategy
@@ -92,6 +102,8 @@ const init = async () => {
       options: {
         service: albumsService,
         validator: AlbumsValidator,
+        uploadService,
+        uploadValidator: UploadsValidator,
       },
     },
     {
@@ -141,6 +153,13 @@ const init = async () => {
         playlistService,
         validator: ExportsValidator,
       },
+    },
+    {
+      plugin: uploads,
+      options: {
+        service: uploadService,
+        validator: UploadsValidator,
+      }
     },
   ]);
 

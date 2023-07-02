@@ -4,4 +4,4 @@ const ExportsPayloadSchema = Joi.object({
   targetEmail: Joi.string().email({ tlds: true }).required(),
 });
 
-module.exports = ExportsPayloadSchema;
+module.exports = { ExportsPayloadSchema };
