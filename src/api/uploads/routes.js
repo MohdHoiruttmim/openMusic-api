@@ -9,7 +9,7 @@ const routes = () => [
         path: path.resolve(__dirname, 'file'),
       },
     },
-  }
+  },
 ];
 
 module.exports = routes;

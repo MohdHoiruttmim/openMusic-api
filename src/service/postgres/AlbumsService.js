@@ -14,6 +14,17 @@ class AlbumsService {
     return result.rows;
   }
 
+  async getAlbumLike(albumId) {
+    const query = {
+      text: 'SELECT COUNT(id) AS likes FROM user_album_likes WHERE album_id = $1 GROUP BY(album_id)',
+      values: [albumId],
+    };
+
+    const { rows } = await this._pool.query(query);
+    rows[0].likes = Number(rows[0].likes);
+    return rows[0];
+  }
+
   async addAlbum({ name, year }) {
     const albumId = 'album-'.concat(nanoid(16));
 
@@ -33,12 +44,30 @@ class AlbumsService {
   async addAlbumCover(albumId, url) {
     const query = {
       text: 'UPDATE albums SET cover_url = $1 WHERE id = $2',
-      values: [url, albumId]
-    }
+      values: [url, albumId],
+    };
 
     const { rowCount } = await this._pool.query(query);
-    if (rowCount == 0) {
+    if (rowCount === 0) {
       throw new InvariantError('Gagal menambahkan cover album');
+    }
+  }
+
+  async addAlbumLike(albumId, userId) {
+    const likeId = `like-${nanoid(16)}`;
+
+    const query = {
+      text: 'INSERT INTO user_album_likes VALUES($1, $2, $3) RETURNING id',
+      values: [likeId, userId, albumId],
+    };
+
+    try {
+      const { rows } = await this._pool.query(query);
+      if (!rows.length) {
+        throw new InvariantError('Gagal menyukai album');
+      }
+    } catch (error) {
+      throw new InvariantError('User mencoba menyukai album yang sama');
     }
   }
 
@@ -62,7 +91,6 @@ class AlbumsService {
 
     const songsResult = await this._pool.query(songsQuery);
     albumMapResult[0].songs = songsResult.rows;
-
 
     return albumMapResult[0];
   }
@@ -89,6 +117,18 @@ class AlbumsService {
 
     if (!result.rows.length) {
       throw new NotFoundError('Album gagal dihapus. Id tidak ditemukan');
+    }
+  }
+
+  async deleteAlbumLike(albumId, userId) {
+    const query = {
+      text: 'DELETE FROM user_album_likes WHERE user_id = $1 AND album_id = $2 RETURNING id',
+      values: [userId, albumId],
+    };
+
+    const { rows } = await this._pool.query(query);
+    if (!rows.length) {
+      throw new NotFoundError('Album tidak ditemukan');
     }
   }
 }

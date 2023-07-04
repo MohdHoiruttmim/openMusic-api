@@ -5,8 +5,8 @@ require('dotenv').config();
 const Hapi = require('@hapi/hapi');
 const Jwt = require('@hapi/jwt');
 const Inert = require('@hapi/inert');
-const ClientError = require('./exceptions/ClientError');
 const path = require('path');
+const ClientError = require('./exceptions/ClientError');
 
 // albums service
 const albums = require('./api/albums');
@@ -75,7 +75,7 @@ const init = async () => {
     },
     {
       plugin: Inert,
-    }
+    },
   ]);
 
   // defined auhtentication strategy
@@ -159,7 +159,7 @@ const init = async () => {
       options: {
         service: uploadService,
         validator: UploadsValidator,
-      }
+      },
     },
   ]);
 

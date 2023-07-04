@@ -14,9 +14,9 @@ const mapAlbumDBToModel = ({
 }) => ({
   ...args,
   coverUrl: cover_url,
-})
+});
 
-module.exports = { 
+module.exports = {
   mapSongDBToModel,
   mapAlbumDBToModel,
 };
