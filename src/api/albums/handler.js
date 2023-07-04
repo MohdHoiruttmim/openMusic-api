@@ -108,7 +108,7 @@ class AlbumsHandler {
       status: 'success',
       data,
     });
-    (source) ? response.header('X-Data-Source', source) : '';
+    if (source) { response.header('X-Data-Source', source); }
     response.code(200);
     return response;
   }

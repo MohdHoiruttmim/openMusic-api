@@ -20,19 +20,18 @@ class AlbumsService {
       const result = await this._cacheService.get(`album:${albumId}`);
       return {
         data: JSON.parse(result),
-        source: 'cache'
+        source: 'cache',
       };
     } catch (error) {
-
       const query = {
         text: 'SELECT COUNT(id) AS likes FROM user_album_likes WHERE album_id = $1 GROUP BY(album_id)',
         values: [albumId],
       };
-  
+
       const { rows } = await this._pool.query(query);
       rows[0].likes = Number(rows[0].likes);
 
-      await this._cacheService.set(`album:${albumId}`, JSON.stringify(rows[0]))
+      await this._cacheService.set(`album:${albumId}`, JSON.stringify(rows[0]));
       return { data: rows[0] };
     }
   }
