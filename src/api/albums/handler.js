@@ -1,9 +1,12 @@
 const autoBind = require('auto-bind');
 
 class AlbumsHandler {
-  constructor(service, validator) {
+  constructor(service, validator, uploadService, uploadValidator) {
     this._service = service;
     this._validator = validator;
+    this._uploadService = uploadService;
+    this._uploadValidator = uploadValidator;
+
     autoBind(this);
   }
 
@@ -19,6 +22,53 @@ class AlbumsHandler {
       },
     });
     response.code(201);
+    return response;
+  }
+
+  async postUploadImageHandler(request, h) {
+    const { cover } = request.payload;
+    const { id: albumId } = request.params;
+    this._uploadValidator.validateUploadPayload(cover.hapi.headers);
+    await this._service.getAlbumById(albumId);
+
+    const result = await this._uploadService.writeFile(cover, cover.hapi);
+
+    const coverUrl = `http://${process.env.HOST}:${process.env.PORT}/covers/images/${result}`;
+    await this._service.addAlbumCover(albumId, coverUrl);
+
+    const response = h.response({
+      status: 'success',
+      message: 'Sampul berhasil diunggah',
+    });
+    response.code(201);
+    return response;
+  }
+
+  async postAlbumLikesHandler(request, h) {
+    const { albumId } = request.params;
+    const { id: userId } = request.auth.credentials;
+
+    await this._service.getAlbumById(albumId);
+    await this._service.addAlbumLike(albumId, userId);
+
+    const response = h.response({
+      status: 'success',
+      message: 'Menyukai album',
+    });
+    response.code(201);
+    return response;
+  }
+
+  async unlikeAlbumHandler(request, h) {
+    const { albumId } = request.params;
+    const { id: userId } = request.auth.credentials;
+
+    await this._service.deleteAlbumLike(albumId, userId);
+    const response = h.response({
+      status: 'success',
+      message: 'Batal menyukai album',
+    });
+    response.code(200);
     return response;
   }
 
@@ -46,6 +96,19 @@ class AlbumsHandler {
       },
     });
 
+    response.code(200);
+    return response;
+  }
+
+  async getAlbumLikeHandler(request, h) {
+    const { albumId } = request.params;
+
+    const { data, source } = await this._service.getAlbumLike(albumId);
+    const response = h.response({
+      status: 'success',
+      data,
+    });
+    if (source) { response.header('X-Data-Source', source); }
     response.code(200);
     return response;
   }
